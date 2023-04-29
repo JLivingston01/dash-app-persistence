@@ -52,18 +52,21 @@ def create_app():
                         columns = [{"name": i, "id": i} for i in df.columns],
                         editable=True
                         ),
+
+                        html.Div(id='debugger'),
+                        html.Button('Add Tab', id='add-tab', n_clicks=0),
+                        html.Div(
+                                id='tab-div',
+                                children = [
+                                dcc.Tabs(id='tabs-container',
+                                children = [
+                                ]
+                                )
+                                ]
+                            )  
+
                         ]),
-                html.Div(id='debugger'),
-                html.Button('Add Tab', id='add-tab', n_clicks=0),
-                html.Div(
-                        id='tab-div',
-                        children = [
-                        dcc.Tabs(id='tabs-container',
-                        children = [
-                        ]
-                        )
-                        ]
-                    )   
+ 
             ]
         )
 
@@ -130,14 +133,14 @@ def create_app():
         
         return current_n_clicks
     
-    
+    """
     # IF TAB CONTAINER CHILDREN CHANGED, ADD TO TAB STORE
     @app.callback([Output('tab-store', 'data')], 
                   [
                     Input('tabs-container', 'children'),
                    ])
     def save_tabs(children):
-        return [children]
+        return [children]"""
     
     # LOAD EXISTING CHILDREN FROM TAB STORE, ADD OR DELETE, PUSH TO TAB CONTAINER
     @app.callback(
@@ -145,7 +148,10 @@ def create_app():
          Output('debugger','children')],
         [Input('add-tab','n_clicks'),
         Input({'type':'delete-tab','index':ALL},'n_clicks')],
-        [State('tab-store','data')]
+        [
+        #State('tab-store','data')
+        State('tabs-container','children')
+        ]
     )
     def add_tab(n_clicks,delete_n_clicks,existing_children):
 
