@@ -41,20 +41,29 @@ def create_app():
             children = [
                 dcc.Store('tab-store',storage_type='session'),
                 dcc.Store('table-store',storage_type='session'),
+                dcc.Store('full-table-object-store',storage_type='session'),
                 dcc.Store('clicks-store',storage_type='session'),
-                dash_table.DataTable(
+                html.Div(
+                        id='table-div',
+                        children = [
+                        dash_table.DataTable(
                         id='data-table',
                         data = df.to_dict('records'),
                         columns = [{"name": i, "id": i} for i in df.columns],
                         editable=True
                         ),
+                        ]),
                 html.Div(id='debugger'),
                 html.Button('Add Tab', id='add-tab', n_clicks=0),
-                dcc.Tabs(id='tabs-container',
+                html.Div(
+                        id='tab-div',
+                        children = [
+                        dcc.Tabs(id='tabs-container',
                         children = [
                         ]
                         )
-                
+                        ]
+                    )   
             ]
         )
 
@@ -62,22 +71,29 @@ def create_app():
     # 1. On data change, save to store data
     # 2. On store modified TS change, load stored data if available, else load current data
     @app.callback(
-            Output('table-store', 'data'), 
+            #Output('table-store', 'data'), 
+            Output('full-table-object-store', 'data'), 
             [
-            Input('data-table', 'data'),
+            #Input('data-table', 'data'),
+            Input('table-div', 'children'),
+            Input('table-div', 'n_clicks'),
             ]
             )
-    def save_main_table(data):
+    def save_main_table(data,ts):
         return data
     
     @app.callback(
-            Output('data-table', 'data'), 
+            #Output('data-table', 'data'), 
+            Output('table-div', 'children'), 
             [
-            Input('table-store', 'modified_timestamp'),
+            #Input('table-store', 'modified_timestamp'),
+            Input('full-table-object-store', 'modified_timestamp'),
             ],
             [
-            State('table-store', 'data'),
-            State('data-table', 'data'),
+            #State('table-store', 'data'),
+            State('full-table-object-store', 'data'),
+            #State('data-table', 'data'),
+            State('table-div', 'children'),
             ]
             )
     def retrieve_saved_table(ts,saved_data,current_data):
@@ -155,6 +171,12 @@ def create_app():
                     children=[
                         html.P(f"This is Tab {n_clicks}"),
                         html.P(str(trigger)),
+                        dash_table.DataTable(
+                        id=f'data-table-{n_clicks}',
+                        data = df.to_dict('records'),
+                        columns = [{"name": i, "id": i} for i in df.columns],
+                        editable=True
+                        ),
                         html.Button("Delete Tab",
                                     id={'type':'delete-tab','index':n_clicks},
                                     n_clicks=0)
