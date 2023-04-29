@@ -39,8 +39,6 @@ def create_app():
     app.layout = html.Div(
             id='full-app',
             children = [
-                dcc.Store('tab-store',storage_type='session'),
-                dcc.Store('table-store',storage_type='session'),
                 dcc.Store('full-table-object-store',storage_type='session'),
                 dcc.Store('clicks-store',storage_type='session'),
                 html.Div(
@@ -149,7 +147,6 @@ def create_app():
         [Input('add-tab','n_clicks'),
         Input({'type':'delete-tab','index':ALL},'n_clicks')],
         [
-        #State('tab-store','data')
         State('tabs-container','children')
         ]
     )
